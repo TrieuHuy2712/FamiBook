@@ -1,5 +1,6 @@
 package com.huytrieu.familybook;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 
 public class ProfileActivity extends AppCompatActivity {
     Button SendFriendRequestButton,DeclineFriendRequestButton;
+    Intent intent;
     TextView ProfileName,ProfileStatus;
     ImageView ProfileImage;
     DatabaseReference UserReference;
@@ -36,10 +38,16 @@ public class ProfileActivity extends AppCompatActivity {
     String receiver_user_id;
     DatabaseReference FriendsReference;
     DatabaseReference NotificationsReference;
+    public String latitute;
+    public String longtitute;
+    public static final String LATITUTE = "latitute";
+    public static final String LONGTITUTE = "longtitute";
+    public static final String BUNDLE = "bundel";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
         FriendRequestReference = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
         FriendRequestReference.keepSynced(true);
         mAuth = FirebaseAuth.getInstance();
@@ -69,6 +77,7 @@ public class ProfileActivity extends AppCompatActivity {
                 String name = dataSnapshot.child("user_name").getValue().toString();
                 String status = dataSnapshot.child("user_status").getValue().toString();
                 String image = dataSnapshot.child("user_image").getValue().toString();
+
 
                 ProfileName.setText(name);
                 ProfileStatus.setText(status);
@@ -109,8 +118,8 @@ public class ProfileActivity extends AppCompatActivity {
                                                     CURRENT_STATE = "friends";
                                                     SendFriendRequestButton.setText("UnFriend this person");
 
-                                                    DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
-                                                    DeclineFriendRequestButton.setEnabled(false);
+                                                    DeclineFriendRequestButton.setText("Get location");
+                                                    //DeclineFriendRequestButton.setEnabled(false);
                                                 }
                                             }
 
@@ -134,8 +143,8 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-        DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
-        DeclineFriendRequestButton.setEnabled(false);
+//        DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
+//        DeclineFriendRequestButton.setEnabled(false);
 
         if (!sender_user_id.equals(receiver_user_id)){
             SendFriendRequestButton.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +163,33 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                     if (CURRENT_STATE.equals("friends")){
                         UnFriendaFriend();
+                    }
+                }
+            });
+
+            DeclineFriendRequestButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DeclineFriendRequestButton.setEnabled(false);
+                    if (CURRENT_STATE.equals("friends")){
+                        UserReference.child(receiver_user_id).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                latitute= dataSnapshot.child("latituteField").getValue().toString();
+                                longtitute= dataSnapshot.child("longitudeField").getValue().toString();
+                                intent= new Intent(ProfileActivity.this, friendLoation.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString(LONGTITUTE, longtitute);
+                                bundle.putString(LATITUTE, latitute);
+                                intent.putExtra(BUNDLE, bundle);
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
                 }
             });

@@ -1,4 +1,4 @@
-package com.huytrieu.chatstudentapp;
+package com.huytrieu.familybook;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.huytrieu.chatstudentapp;
+package com.huytrieu.familybook;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
